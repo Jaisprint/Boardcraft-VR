@@ -12,7 +12,7 @@ jobs:
           java-version: '25'
       - uses: gradle/actions/setup-gradle@v4
         with:
-          gradle-version: '9.3.0'
+          gradle-version: '9.5.0'
       - run: gradle build --no-daemon
         working-directory: cardboard-vr/mod
       - uses: actions/upload-artifact@v4
