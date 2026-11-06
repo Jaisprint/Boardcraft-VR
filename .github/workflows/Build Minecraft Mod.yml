@@ -5,7 +5,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - run: unzip -q ./*.zip
+      - run: |
+          rm -rf cardboard-vr
+          unzip -qo "$(ls ./*.zip | sort | tail -1)"
+          sed -i 's/isKeyDown(win, /isKeyDown(/g' cardboard-vr/mod/src/main/java/com/jay/cardboardvr/*.java
+          grep -rn isKeyDown cardboard-vr/mod/src
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
