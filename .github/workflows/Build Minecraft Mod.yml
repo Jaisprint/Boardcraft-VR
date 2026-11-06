@@ -5,11 +5,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - run:
+      - run: |
           ls -la
           rm -rf cardboard-vr
           Z="$(ls -1 *.zip | grep -i '1d' | head -1)"
-          echo "USING ZIP: $Z"
+          echo "USING ZIP is $Z"
           unzip -qo "$Z"
           find cardboard-vr/mod/src -name '*.java' -exec sed -i 's/isKeyDown(win, /isKeyDown(/g' {} +
           grep -rn "isKeyDown" cardboard-vr/mod/src
