@@ -6,7 +6,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: unzip -q ./*.zip
-      - run: sed -i 's/minSdk 24/minSdk 28/' cardboard-vr/gyro-app/app/build.gradle
+      - run: sed -i 's/minSdk 24/minSdk 27/' cardboard-vr/gyro-app/app/build.gradle
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
