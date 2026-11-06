@@ -1,22 +1,53 @@
+
 name: Build gyro app
-on: workflow_dispatch
+
+on:
+  workflow_dispatch:
+
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v4
-      - run: unzip -q ./*.zip
-      - run: sed -i 's/minSdk 24/minSdk 27/' cardboard-vr/gyro-app/app/build.gradle
-      - uses: actions/setup-java@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Extract modified Gyro Sender source
+        run: |
+          if [ ! -f gyro_sender_ui_source.zip ]; then
+            echo "ERROR: gyro_sender_ui_source.zip not found!"
+            exit 1
+          fi
+
+          mkdir -p gyro-app
+          unzip -q gyro_sender_ui_source.zip -d gyro-app
+
+          test -f gyro-app/settings.gradle
+          test -f gyro-app/app/build.gradle
+          test -f gyro-app/app/src/main/java/com/jay/gyrosender/MainActivity.java
+
+      - name: Set minimum SDK
+        run: |
+          sed -i 's/minSdk 24/minSdk 27/' gyro-app/app/build.gradle
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: '17'
-      - uses: gradle/actions/setup-gradle@v4
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '8.7'
-      - run: gradle assembleDebug --no-daemon
-        working-directory: cardboard-vr/gyro-app
-      - uses: actions/upload-artifact@v4
+
+      - name: Build modified Gyro Sender
+        run: gradle assembleDebug --no-daemon
+        working-directory: gyro-app
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
         with:
           name: gyro-sender-apk
-          path: cardboard-vr/gyro-app/app/build/outputs/apk/debug/*.apk
+          path: gyro-app/app/build/outputs/apk/debug/*.apk
+          if-no-files-found: error
