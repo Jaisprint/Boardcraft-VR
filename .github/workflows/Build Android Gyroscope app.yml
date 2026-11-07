@@ -43,7 +43,7 @@ jobs:
 
       - name: Build modified Gyroscope Sender
         run: gradle assembleDebug --no-daemon
-        working-directory: gyro-app
+        working-directory: gyroscope-app
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
