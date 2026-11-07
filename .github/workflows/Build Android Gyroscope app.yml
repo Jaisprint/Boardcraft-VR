@@ -12,11 +12,13 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      
       - name: Verify extracted application
         run: |
           test -f "Gyroscope App/settings.gradle"
           test -f "Gyroscope App/app/build.gradle"
-          test -f "Gyroscope App/app/src/main/java/com/jay/gyrosender/MainActivity.java"
+          test -f "Gyroscope App/app/src/main/java/com/crl/gyroscope/sender/MainActivity.java"
+          test -f "Gyroscope App/app/src/main/java/com/crl/gyroscope/sender/GyroService.java"
 
       - name: Set minimum SDK
         run: |
