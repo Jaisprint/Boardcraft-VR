@@ -15,44 +15,105 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          ref: ${{ github.ref_name }}
 
-      - name: Check ZIP file
+      - name: Verify ZIP archive
+        shell: bash
         run: |
-          if [ ! -f Gyroscope_app.zip ]; then
-            echo "ERROR: Gyroscope_app.zip not found!"
+          set -e
+
+          ZIP="Gyroscope_app.zip"
+
+          if [ ! -f "$ZIP" ]; then
+            echo "ERROR: $ZIP not found in repository root!"
+            ls -la
             exit 1
           fi
 
-     
-      - name: Delete old folder and extract fresh files
+          echo "Checking ZIP integrity..."
+          unzip -tq "$ZIP"
+
+          echo "ZIP is valid."
+
+      - name: Extract fresh application
         shell: bash
         run: |
-          set -euxo pipefail
+          set -euo pipefail
 
+          ZIP="Gyroscope_app.zip"
           APP_DIR="Gyroscope App"
+          TEMP_DIR="$RUNNER_TEMP/gyroscope-extraction"
 
-          echo "Current directory:"
-          pwd
+          echo "Preparing extraction..."
 
-          echo "Repository contents:"
-          ls -la
+          rm -rf "$TEMP_DIR"
+          mkdir -p "$TEMP_DIR"
 
-          echo "Removing previous application..."
-          if [ -e "$APP_DIR" ] || [ -L "$APP_DIR" ]; then
-            rm -rf -- "$APP_DIR"
+          echo "Extracting archive..."
+          unzip -q "$ZIP" -d "$TEMP_DIR"
+
+          echo "Locating Android project..."
+          PROJECT_DIR=$(find "$TEMP_DIR" \
+            -type f -name settings.gradle \
+            -print -quit | xargs -r dirname)
+
+          if [ -z "$PROJECT_DIR" ] || [ ! -f "$PROJECT_DIR/app/build.gradle" ]; then
+            echo "ERROR: Android Gradle project not found in ZIP!"
+            find "$TEMP_DIR" -maxdepth 5 -type f
+            exit 1
           fi
 
-          echo "Creating fresh application directory..."
-          mkdir -p -- "$APP_DIR"
+          echo "Found project at: $PROJECT_DIR"
 
-          echo "Extracting ZIP..."
-          unzip -q -o Gyroscope_app.zip -d "$APP_DIR"
+          echo "Deleting previous extracted application..."
+          rm -rf "$APP_DIR"
 
-          echo "Checking extracted files..."
-          test -f "$APP_DIR/settings.gradle"
-          test -f "$APP_DIR/app/build.gradle"
-          test -f "$APP_DIR/app/src/main/java/com/crl/gyroscope/sender/MainActivity.java"
+          echo "Creating fresh application folder..."
+          mkdir -p "$APP_DIR"
 
-          echo "Extraction successful!"
+          echo "Copying new application files..."
+          cp -a "$PROJECT_DIR/." "$APP_DIR/"
 
+          echo "Verifying Java source..."
+          MAIN=$(find "$APP_DIR" -type f \
+            -name MainActivity.java -print -quit)
+
+          SERVICE=$(find "$APP_DIR" -type f \
+            -name GyroService.java -print -quit)
+
+          test -n "$MAIN"
+          test -n "$SERVICE"
+
+          grep -q 'package com.crl.gyroscope.sender;' "$MAIN"
+
+          echo "Application extracted successfully!"
+          echo "MainActivity: $MAIN"
+          echo "GyroService: $SERVICE"
+
+          echo "Final folder contents:"
+          find "$APP_DIR" -maxdepth 5 -type f
+
+      - name: Commit extracted application to GitHub
+        shell: bash
+        run: |
+          set -e
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          echo "Adding extracted files..."
+          git add -f -A -- "Gyroscope App"
+
+          echo "Checking for changes..."
+          git status --short
+
+          if git diff --cached --quiet; then
+            echo "Extracted files are already up to date."
+          else
+            git commit -m "Update extracted Gyroscope App"
+
+            echo "Pushing extracted application to GitHub..."
+            git push origin "HEAD:${GITHUB_REF_NAME}"
+          fi
+
+          echo "Extraction workflow completed!"
