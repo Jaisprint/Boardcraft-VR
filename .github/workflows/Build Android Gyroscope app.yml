@@ -1,5 +1,5 @@
 
-name: Build gyro app
+name: Build Gyroscope Sender app
 
 on:
   workflow_dispatch:
@@ -12,23 +12,23 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Extract modified Gyro Sender source
+      - name: Extract modified Gyroscope Sender source
         run: |
-          if [ ! -f gyro_sender_ui_source.zip ]; then
-            echo "ERROR: gyro_sender_ui_source.zip not found!"
+          if [ ! -f Gyroscope_app.zip ]; then
+            echo "ERROR: Gyeoscope_app.zip not found!"
             exit 1
           fi
 
-          mkdir -p gyro-app
-          unzip -q gyro_sender_ui_source.zip -d gyro-app
+          mkdir -p gyroscope-app
+          unzip -q Gyroscope_app.zip -d gyroscope-app
 
-          test -f gyro-app/settings.gradle
-          test -f gyro-app/app/build.gradle
-          test -f gyro-app/app/src/main/java/com/jay/gyrosender/MainActivity.java
+          test -f gyroscope-app/settings.gradle
+          test -f gyroscope-app/app/build.gradle
+          test -f gyroscope-app/app/src/main/java/com/jay/gyrosender/MainActivity.java
 
       - name: Set minimum SDK
         run: |
-          sed -i 's/minSdk 24/minSdk 27/' gyro-app/app/build.gradle
+          sed -i 's/minSdk 24/minSdk 27/' gyroscope-app/app/build.gradle
 
       - name: Setup Java
         uses: actions/setup-java@v4
@@ -41,7 +41,7 @@ jobs:
         with:
           gradle-version: '8.7'
 
-      - name: Build modified Gyro Sender
+      - name: Build modified Gyroscope Sender
         run: gradle assembleDebug --no-daemon
         working-directory: gyro-app
 
