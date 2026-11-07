@@ -12,13 +12,53 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      
-      - name: Verify extracted application
+      - name: Diagnose and verify application
+        shell: bash
         run: |
-          test -f "Gyroscope App/settings.gradle"
-          test -f "Gyroscope App/app/build.gradle"
-          test -f "Gyroscope App/app/src/main/java/com/crl/gyroscope/sender/MainActivity.java"
-          test -f "Gyroscope App/app/src/main/java/com/crl/gyroscope/sender/GyroService.java"
+          set -e
+
+          APP_DIR="Gyroscope App"
+
+          echo "Checking application directory..."
+
+          if [ ! -d "$APP_DIR" ]; then
+            echo "ERROR: Gyroscope App folder not found!"
+            echo "Repository contents:"
+            ls -la
+            exit 1
+          fi
+
+          echo "Application contents:"
+          find "$APP_DIR" -maxdepth 5 -type f | sort
+
+          echo "Checking Gradle files..."
+          test -f "$APP_DIR/settings.gradle"
+          test -f "$APP_DIR/app/build.gradle"
+
+          echo "Locating MainActivity.java..."
+          MAIN_ACTIVITY=$(find "$APP_DIR" -type f -name MainActivity.java | head -n 1)
+
+          if [ -z "$MAIN_ACTIVITY" ]; then
+            echo "ERROR: MainActivity.java not found!"
+            exit 1
+          fi
+
+          echo "Found: $MAIN_ACTIVITY"
+
+          if ! grep -q 'package com.crl.gyroscope.sender;' "$MAIN_ACTIVITY"; then
+            echo "ERROR: MainActivity has an unexpected package declaration!"
+            exit 1
+          fi
+
+          echo "Checking GyroService.java..."
+          GYRO_SERVICE=$(find "$APP_DIR" -type f -name GyroService.java | head -n 1)
+
+          if [ -z "$GYRO_SERVICE" ]; then
+            echo "ERROR: GyroService.java not found!"
+            exit 1
+          fi
+
+          echo "Application verification successful!"
 
       - name: Set minimum SDK
         run: |
