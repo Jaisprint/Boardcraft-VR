@@ -26,7 +26,6 @@ jobs:
 
       - name: Delete old folder and extract fresh files
         run: |
-          rm -rf "Gyroscope App"
           mkdir -p "Gyroscope App"
 
           unzip -q Gyroscope_app.zip -d "Gyroscope App"
