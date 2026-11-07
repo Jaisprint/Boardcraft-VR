@@ -1,27 +1,39 @@
 name: Build mod
-on: workflow_dispatch
+
+on:
+  workflow_dispatch:
+
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - run: |
           ls -la
           rm -rf cardboard-vr
-          Z="$(ls -1 *.zip | grep -i '1d' | head -1)"
+          Z="$(find . -maxdepth 1 -type f -name 'cardboard-vr-stage*.zip' | sort | head -1)"
+          if [ -z "$Z" ]; then
+            echo "ERROR: cardboard-vr-stage ZIP not found!"
+            exit 1
+          fi
           echo "USING ZIP is $Z"
           unzip -qo "$Z"
           find cardboard-vr/mod/src -name '*.java' -exec sed -i 's/isKeyDown(win, /isKeyDown(/g' {} +
           grep -rn "isKeyDown" cardboard-vr/mod/src
+
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: '25'
+
       - uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '9.5.0'
+
       - run: gradle build --no-daemon
         working-directory: cardboard-vr/mod
+
       - uses: actions/upload-artifact@v4
         with:
           name: boardcraft-mod
