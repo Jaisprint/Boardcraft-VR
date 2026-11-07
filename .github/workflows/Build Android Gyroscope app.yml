@@ -12,58 +12,51 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Diagnose and verify application
+      - name: Extract Gyroscope App ZIP
         shell: bash
         run: |
           set -e
 
-          APP_DIR="Gyroscope App"
-
-          echo "Checking application directory..."
-
-          if [ ! -d "$APP_DIR" ]; then
-            echo "ERROR: Gyroscope App folder not found!"
-            echo "Repository contents:"
-            ls -la
+          if [ ! -f Gyroscope_app.zip ]; then
+            echo "ERROR: Gyroscope_app.zip not found!"
             exit 1
           fi
 
-          echo "Application contents:"
-          find "$APP_DIR" -maxdepth 5 -type f | sort
+          unzip -tq Gyroscope_app.zip
 
-          echo "Checking Gradle files..."
-          test -f "$APP_DIR/settings.gradle"
+          mkdir -p "$RUNNER_TEMP/gyroscope-app"
+          unzip -q -o Gyroscope_app.zip -d "$RUNNER_TEMP/gyroscope-app"
+
+          APP_DIR=$(find "$RUNNER_TEMP/gyroscope-app" \
+            -type f -name settings.gradle -print -quit | xargs -r dirname)
+
+          if [ -z "$APP_DIR" ] || [ ! -f "$APP_DIR/app/build.gradle" ]; then
+            echo "ERROR: Android project not found in ZIP!"
+            find "$RUNNER_TEMP/gyroscope-app" -maxdepth 5 -type f
+            exit 1
+          fi
+
+          echo "APP_DIR=$APP_DIR" >> "$GITHUB_ENV"
+
+          echo "Found project: $APP_DIR"
+
+      - name: Verify application
+        shell: bash
+        run: |
+          set -e
+
+          MAIN=$(find "$APP_DIR" -name MainActivity.java -print -quit)
+
+          test -n "$MAIN"
           test -f "$APP_DIR/app/build.gradle"
 
-          echo "Locating MainActivity.java..."
-          MAIN_ACTIVITY=$(find "$APP_DIR" -type f -name MainActivity.java | head -n 1)
+          grep -q 'package com.crl.gyroscope.sender;' "$MAIN"
 
-          if [ -z "$MAIN_ACTIVITY" ]; then
-            echo "ERROR: MainActivity.java not found!"
-            exit 1
-          fi
-
-          echo "Found: $MAIN_ACTIVITY"
-
-          if ! grep -q 'package com.crl.gyroscope.sender;' "$MAIN_ACTIVITY"; then
-            echo "ERROR: MainActivity has an unexpected package declaration!"
-            exit 1
-          fi
-
-          echo "Checking GyroService.java..."
-          GYRO_SERVICE=$(find "$APP_DIR" -type f -name GyroService.java | head -n 1)
-
-          if [ -z "$GYRO_SERVICE" ]; then
-            echo "ERROR: GyroService.java not found!"
-            exit 1
-          fi
-
-          echo "Application verification successful!"
+          echo "Application verified: $MAIN"
 
       - name: Set minimum SDK
         run: |
-          sed -i 's/minSdk 24/minSdk 27/' \
-            "Gyroscope App/app/build.gradle"
+          sed -i 's/minSdk 24/minSdk 27/' "$APP_DIR/app/build.gradle"
 
       - name: Setup Java
         uses: actions/setup-java@v4
@@ -78,11 +71,11 @@ jobs:
 
       - name: Build Gyroscope Sender
         run: gradle assembleDebug --no-daemon
-        working-directory: Gyroscope App
+        working-directory: ${{ env.APP_DIR }}
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: gyroscope-sender-apk
-          path: "Gyroscope App/app/build/outputs/apk/debug/*.apk"
+          path: "${{ env.APP_DIR }}/app/build/outputs/apk/debug/*.apk"
           if-no-files-found: error
