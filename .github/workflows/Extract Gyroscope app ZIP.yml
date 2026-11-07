@@ -24,26 +24,35 @@ jobs:
             exit 1
           fi
 
+     
       - name: Delete old folder and extract fresh files
+        shell: bash
         run: |
-          mkdir -p "Gyroscope App"
+          set -euxo pipefail
 
-          unzip -q Gyroscope_app.zip -d "Gyroscope App"
+          APP_DIR="Gyroscope App"
 
-          test -f "Gyroscope App/settings.gradle"
-          test -f "Gyroscope App/app/build.gradle"
-          test -f "Gyroscope App/app/src/main/java/com/jay/gyrosender/MainActivity.java"
+          echo "Current directory:"
+          pwd
 
-      - name: Commit extracted application
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          echo "Repository contents:"
+          ls -la
 
-          git add -A -- "Gyroscope App"
-
-          if git diff --cached --quiet; then
-            echo "No changes to commit."
-          else
-            git commit -m "Update extracted Gyroscope App"
-            git push
+          echo "Removing previous application..."
+          if [ -e "$APP_DIR" ] || [ -L "$APP_DIR" ]; then
+            rm -rf -- "$APP_DIR"
           fi
+
+          echo "Creating fresh application directory..."
+          mkdir -p -- "$APP_DIR"
+
+          echo "Extracting ZIP..."
+          unzip -q -o Gyroscope_app.zip -d "$APP_DIR"
+
+          echo "Checking extracted files..."
+          test -f "$APP_DIR/settings.gradle"
+          test -f "$APP_DIR/app/build.gradle"
+          test -f "$APP_DIR/app/src/main/java/com/crl/gyroscope/sender/MainActivity.java"
+
+          echo "Extraction successful!"
+
