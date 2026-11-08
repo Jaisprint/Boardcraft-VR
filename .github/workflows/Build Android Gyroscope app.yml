@@ -50,7 +50,7 @@ jobs:
           test -n "$MAIN"
           test -f "$APP_DIR/app/build.gradle"
 
-          grep -q 'package com.crl.gyroscope.sender;' "$MAIN"
+          grep -q 'package com.crl.minecraft.cardboard.vr;' "$MAIN"
 
           echo "Application verified: $MAIN"
 
