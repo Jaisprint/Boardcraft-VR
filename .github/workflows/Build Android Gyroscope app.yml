@@ -1,5 +1,5 @@
 
-name: Build Gyroscope Sender App
+name: Build Minecraft Cardboard VR App
 
 on:
   workflow_dispatch:
@@ -12,50 +12,73 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Extract Gyroscope App ZIP
+      - name: Extract Minecraft Cardboard VR ZIP
         shell: bash
         run: |
           set -e
 
-          if [ ! -f Gyroscope_app.zip ]; then
-            echo "ERROR: Gyroscope_app.zip not found!"
+          ZIP="Gyroscope_app.zip"
+
+          if [ ! -f "$ZIP" ]; then
+            echo "ERROR: $ZIP not found!"
             exit 1
           fi
 
-          unzip -tq Gyroscope_app.zip
+          unzip -tq "$ZIP"
 
-          mkdir -p "$RUNNER_TEMP/gyroscope-app"
-          unzip -q -o Gyroscope_app.zip -d "$RUNNER_TEMP/gyroscope-app"
+          EXTRACT_DIR="$RUNNER_TEMP/minecraft-cardboard-vr"
+          mkdir -p "$EXTRACT_DIR"
 
-          APP_DIR=$(find "$RUNNER_TEMP/gyroscope-app" \
-            -type f -name settings.gradle -print -quit | xargs -r dirname)
+          unzip -q -o "$ZIP" -d "$EXTRACT_DIR"
 
-          if [ -z "$APP_DIR" ] || [ ! -f "$APP_DIR/app/build.gradle" ]; then
-            echo "ERROR: Android project not found in ZIP!"
-            find "$RUNNER_TEMP/gyroscope-app" -maxdepth 5 -type f
+          echo "Extracted project structure:"
+          find "$EXTRACT_DIR" -maxdepth 7 -type d | sort
+
+          APP_GRADLE=$(find "$EXTRACT_DIR" \
+            -type f -path "*/app/build.gradle" -print -quit)
+
+          if [ -z "$APP_GRADLE" ]; then
+            echo "ERROR: app/build.gradle not found!"
             exit 1
           fi
+
+          APP_DIR=$(dirname "$(dirname "$APP_GRADLE")")
 
           echo "APP_DIR=$APP_DIR" >> "$GITHUB_ENV"
 
-          echo "Found project: $APP_DIR"
+          echo "Found Android project: $APP_DIR"
 
-      - name: Verify application
+      - name: Verify Minecraft Cardboard VR package
         shell: bash
         run: |
           set -e
 
-          MAIN=$(find "$APP_DIR" -name MainActivity.java -print -quit)
+          MAIN=$(find "$APP_DIR/app/src/main/java" \
+            -type f -name MainActivity.java -print -quit)
 
-          test -n "$MAIN"
-          test -f "$APP_DIR/app/build.gradle"
+          if [ -z "$MAIN" ]; then
+            echo "ERROR: MainActivity.java not found!"
+            find "$APP_DIR/app/src/main/java" -type f
+            exit 1
+          fi
 
-          grep -q 'package com.crl.minecraft.cardboard.vr;' "$MAIN"
+          if [ ! -f "$APP_DIR/app/build.gradle" ]; then
+            echo "ERROR: app/build.gradle not found!"
+            exit 1
+          fi
+
+          if ! grep -q '^package com\.crl\.minecraft\.cardboard\.vr;' "$MAIN"; then
+            echo "ERROR: Incorrect MainActivity package!"
+            head -n 10 "$MAIN"
+            exit 1
+          fi
 
           echo "Application verified: $MAIN"
 
       - name: Set minimum SDK
+        shell: bash
         run: |
+          set -e
           sed -i 's/minSdk 24/minSdk 27/' "$APP_DIR/app/build.gradle"
 
       - name: Setup Java
@@ -69,13 +92,14 @@ jobs:
         with:
           gradle-version: '8.7'
 
-      - name: Build Gyroscope Sender
+      - name: Build Minecraft Cardboard VR
+        shell: bash
         run: gradle assembleDebug --no-daemon
         working-directory: ${{ env.APP_DIR }}
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: gyroscope-sender-apk
+          name: minecraft-cardboard-vr-apk
           path: "${{ env.APP_DIR }}/app/build/outputs/apk/debug/*.apk"
           if-no-files-found: error
