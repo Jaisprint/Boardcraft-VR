@@ -1,0 +1,17 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "com.jay.cardboardvr.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": [],
+  "client": [
+    "TitleScreenMixin",
+    "PauseScreenMixin",
+    "EntityTurnMixin",
+    "MinecraftFrameMixin",
+    "DistortionMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

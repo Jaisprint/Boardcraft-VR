@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "id": "cardboardvr",
+  "version": "${version}",
+  "name": "Boardcraft VR",
+  "description": "Head tracking from a phone gyro app, mouse-walk movement, rebindable buttons and VR settings.",
+  "authors": [
+    "Jay"
+  ],
+  "environment": "client",
+  "entrypoints": {
+    "client": [
+      "com.jay.cardboardvr.CardboardVrClient"
+    ]
+  },
+  "depends": {
+    "fabricloader": ">=0.19.3",
+    "minecraft": ">=26.3",
+    "java": ">=25",
+    "fabric-api": "*"
+  },
+  "mixins": [
+    "cardboardvr.mixins.json"
+  ],
+  "suggests": {
+    "stereoscopic": "*"
+  }
+}
