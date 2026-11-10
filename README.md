@@ -28,22 +28,22 @@ If StereoCraft is missing, the game won't crash, but you won't get side-by-side 
 
 ## Coming Soon:⌛
 
-[-] 6DoF IMU Only Tracked Controller
-[-]Floating Menus and Panels
-[-] Overlay Editor
-[-] Hand based interaction
-[-] Custom Menus for Intractable Blocks (Example: Chest, Crafting Table, Furnace, Anvil, etc)
+ [-] 6DoF IMU Only Tracked Controller
+ [-]Floating Menus and Panels
+ [-] Overlay Editor
+ [-] Hand based interaction
+ [-] Custom Menus for Intractable Blocks (Example: Chest, Crafting Table, Furnace, Anvil, etc)
 
 ## Recommended launchers:✅
 
-[✓] Cubiq Launcher (Recommended with LTW Renderer)
-[✓] Zalith Launcher (Not Tested)
-[✓] Zalith Launcher 2 (Not Tested)
+ [✓] Cubiq Launcher (Recommended with LTW Renderer)
+ [✓] Zalith Launcher (Not Tested)
+ [✓] Zalith Launcher 2 (Not Tested)
 
 ## Not Recommended Launchers:❌
 
-[✗] Pojavlauncher
-[✗] Mojo Launcher
+ [✗] Pojavlauncher
+ [✗] Mojo Launcher
 
 ## Installation⬇️
 
