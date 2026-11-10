@@ -135,7 +135,7 @@ The jar ends up in `build/libs/`. The companion app is a standard Android Gradle
 
 Be a Bug Tester!
 
-  See here
+  See the Beta Tester Guide in the Repository Folders
 
 
 ## Credits📋
