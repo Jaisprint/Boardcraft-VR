@@ -35,6 +35,8 @@ If StereoCraft is missing, the game won't crash, but you won't get side-by-side 
  [-] Overlay Editor
  
  [-] Hand based interaction
+
+ [-] Add support for various controllers Such as Custom ESP32 Controller (Code coming soon), Daydream Controller, GearVR Controller, GalaxyXR Controllers and Nintendo Switch JoyCons
  
  [-] Custom Menus for Intractable Blocks (Example: Chest, Crafting Table, Furnace, Anvil, etc)
 
