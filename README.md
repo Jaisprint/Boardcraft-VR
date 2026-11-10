@@ -133,6 +133,11 @@ To build the mod locally you need Java 25 and Gradle 9.5:
 3. Use its Build.gradle to build the mod
 The jar ends up in `build/libs/`. The companion app is a standard Android Gradle project.
 
+Be a Bug Tester!
+
+  See here
+
+
 ## Credits📋
  - StereoCraft by MitchellMarx (LGPL-3.0) does the side-by-side stereo rendering. Boardcraft drives it through reflection.
  - Sodium and Fabric are what the mod runs on.
