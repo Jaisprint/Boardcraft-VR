@@ -2,9 +2,8 @@
 A Minecraft Java Fabric VR Mod to run Minecraft Java on Google Cardboard devices through Mobile Minecraft Java Edition launchers!
 
 ## Disclaimer⚠️
-Boardcraft VR is an alpha and comes with no warranty (see the GPL-3.0).
-I'm not responsible for broken phones, dead SD cards, overheated batteries,
-Thermal Runaway, motion sickness, or you walking into a wall with a Cardboard on your face.
+Boardcraft VR is an alpha and comes with no warranty.
+I'm not responsible for broken phones, dead SD cards, overheated batteries, motion sickness, or you walking into a wall with a Cardboard on your face.
 Please do some research before using it. YOU are choosing to install it,
 and if you blame me for messing up your device, I will point and laugh at you!
 
@@ -100,10 +99,15 @@ Warning: ⚠️ Mouse mode has a known bug where such as going forward would go 
 
 ## Troubleshooting🪛
 **Double vision**: scan your viewer's QR code in the app. Without viewer settings the mod doesn't know your lens spacing.
+
 **No head tracking**: make sure the app is on Start, and that the port matches in the app and in the mod's VR Settings.
+
 **Image looks too warped or stretched**: check that Screen is on `Auto` (or set to your phone's real size), and try lowering Strength. Raising Minecraft's FOV (around 90 to 100) can also help.
+
 **Image is shifted up or down**: toggle Lens height.
+
 **Auto screen size** shows "no data": start the app first and wait a couple of seconds. The size is sent every ~2 seconds while the app is running.
+
 **Game crashes**: Make Sure the app says Running with a Green dot and keep open in the background if issue persist, Please open an issue and attach the newest file from `crash-reports/` (or the end of `logs/latest.log`). Say which phone and launcher you used (Unsupported Launcher not considered).
 
 ## Known Bugs🐛
@@ -111,7 +115,6 @@ Warning: ⚠️ Mouse mode has a known bug where such as going forward would go 
 - Double vision until a viewer is configured.
 - The first-person hand can get cut off.
 - Distortion assumes a centered per-eye view; StereoCraft's small convergence shift isn't accounted for (about 1% error).
-- Only tested on the Cubiq Launcher with LTW, on two phones.
 
   
 ## Roadmap🗺️
